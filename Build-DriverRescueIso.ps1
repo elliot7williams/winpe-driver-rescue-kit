@@ -121,6 +121,7 @@ try {
 
     Copy-Item -Force -Path "$PSScriptRoot\DriverRestore.ps1" -Destination (Join-Path $toolsPath "DriverRestore.ps1")
     Copy-Item -Force -Path "$PSScriptRoot\DriverRestore.cmd" -Destination (Join-Path $mountRoot "DriverRestore.cmd")
+    Copy-Item -Force -Path "$PSScriptRoot\Unlock-BitLockerVolume.cmd" -Destination (Join-Path $mountRoot "Unlock-BitLockerVolume.cmd")
 
     if (Test-Path $DriverSource) {
         $isoDriverPath = Join-Path $rescuePath "Drivers"

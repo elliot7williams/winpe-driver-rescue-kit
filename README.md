@@ -13,6 +13,7 @@ drivers back into the installed Windows system.
 - A bootable WinPE ISO named `DriverRescue.iso`
 - A rescue script available inside WinPE at `X:\Tools\DriverRestore.ps1`
 - A desktop command shortcut inside WinPE named `DriverRestore.cmd`
+- A BitLocker unlock helper inside WinPE named `Unlock-BitLockerVolume.cmd`
 - Optional automatic driver folder bundled into the ISO
 - Optional automatic scan of external USB media for `.inf` drivers
 
@@ -105,6 +106,12 @@ Or run the PowerShell script directly:
 powershell -ExecutionPolicy Bypass -File X:\Tools\DriverRestore.ps1
 ```
 
+To preview what would be installed without changing the Windows installation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File X:\Tools\DriverRestore.ps1 -DryRun
+```
+
 The tool will:
 
 - Find installed Windows volumes
@@ -123,6 +130,30 @@ On a healthy Windows machine, you can export installed third-party drivers:
 
 Then use that USB drive with the rescue ISO.
 
+## BitLocker
+
+If the Windows drive is encrypted with BitLocker, unlock it before restoring
+drivers. From WinPE, run:
+
+```cmd
+Unlock-BitLockerVolume.cmd C:
+```
+
+Then enter the 48-digit recovery key when prompted.
+
+You can also use `manage-bde` directly:
+
+```cmd
+manage-bde -unlock C: -RecoveryPassword YOUR-48-DIGIT-KEY
+manage-bde -protectors -disable C:
+```
+
+Re-enable BitLocker protectors after Windows boots normally again:
+
+```cmd
+manage-bde -protectors -enable C:
+```
+
 ## Important Notes
 
 - This kit restores driver packages. It does not repair Windows system files,
@@ -133,4 +164,4 @@ Then use that USB drive with the rescue ISO.
   target system firmware settings.
 - For storage controller problems, include storage/NVMe/RAID drivers in the ISO
   itself so WinPE can see the internal disk.
-
+- Test the ISO in a VM before relying on it during a repair. See `TESTING.md`.

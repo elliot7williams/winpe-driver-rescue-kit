@@ -2,6 +2,7 @@
 param(
     [string]$WindowsPath,
     [string[]]$DriverPath,
+    [switch]$DryRun,
     [switch]$NonInteractive
 )
 
@@ -153,6 +154,14 @@ Write-Section "Restore target"
 Write-Host "Windows path: $targetWindows"
 Write-Host "Driver count: $($infFiles.Count)"
 Write-Host "Log path:     $logPath"
+
+if ($DryRun) {
+    Write-Section "Dry run"
+    Write-Host "No drivers were installed."
+    Write-Host "The following .inf files would be added:"
+    $infFiles | ForEach-Object { Write-Host $_ }
+    exit 0
+}
 
 if (-not $NonInteractive) {
     $answer = Read-Host "Install these drivers into $targetWindows? Type YES to continue"
