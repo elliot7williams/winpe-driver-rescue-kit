@@ -2,6 +2,7 @@
 param(
     [string]$WindowsPath,
     [string[]]$DriverPath,
+    [string]$LogDirectory,
     [switch]$DryRun,
     [switch]$NonInteractive
 )
@@ -130,12 +131,31 @@ function Get-InfFiles {
     $files | Sort-Object -Unique
 }
 
+function New-RescueLogDirectory {
+    param(
+        [Parameter(Mandatory)]
+        [string]$TargetDrive
+    )
+
+    if ($LogDirectory) {
+        New-Item -ItemType Directory -Force -Path $LogDirectory | Out-Null
+        return (Resolve-Path $LogDirectory).Path
+    }
+
+    $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+    $path = Join-Path $TargetDrive "DriverRescueLogs\$timestamp"
+    New-Item -ItemType Directory -Force -Path $path | Out-Null
+    $path
+}
+
 Write-Section "WinPE Driver Rescue"
 
 $installations = @(Get-WindowsInstallations)
 $targetWindows = Select-WindowsInstallation -Installations $installations
 $targetDrive = Split-Path -Qualifier $targetWindows
-$logPath = Join-Path $targetDrive "DriverRescue-Restore.log"
+$rescueLogDirectory = New-RescueLogDirectory -TargetDrive $targetDrive
+$restoreLogPath = Join-Path $rescueLogDirectory "Restore.log"
+$scanLogPath = Join-Path $rescueLogDirectory "DriverScan.txt"
 $driverRoots = @(Get-CandidateDriverRoots)
 
 if ($driverRoots.Count -eq 0) {
@@ -150,16 +170,31 @@ if ($infFiles.Count -eq 0) {
     throw "No .inf driver files were found in the detected driver sources."
 }
 
+$scanLines = @(
+    "WinPE Driver Rescue scan",
+    "Timestamp: $(Get-Date -Format s)",
+    "Windows path: $targetWindows",
+    "",
+    "Driver sources:"
+) + $driverRoots + @(
+    "",
+    "INF files:"
+) + $infFiles
+$scanLines | Set-Content -Encoding ASCII -Path $scanLogPath
+
 Write-Section "Restore target"
 Write-Host "Windows path: $targetWindows"
 Write-Host "Driver count: $($infFiles.Count)"
-Write-Host "Log path:     $logPath"
+Write-Host "Log folder:   $rescueLogDirectory"
+Write-Host "Scan log:     $scanLogPath"
 
 if ($DryRun) {
     Write-Section "Dry run"
     Write-Host "No drivers were installed."
     Write-Host "The following .inf files would be added:"
     $infFiles | ForEach-Object { Write-Host $_ }
+    Write-Host ""
+    Write-Host "Scan log written to: $scanLogPath"
     exit 0
 }
 
@@ -177,20 +212,29 @@ $imageArg = "/Image:$imageRoot"
 $success = 0
 $failed = 0
 
+@(
+    "WinPE Driver Rescue restore",
+    "Timestamp: $(Get-Date -Format s)",
+    "Windows path: $targetWindows",
+    "Driver count: $($infFiles.Count)",
+    ""
+) | Set-Content -Encoding ASCII -Path $restoreLogPath
+
 foreach ($inf in $infFiles) {
     Write-Host "Adding $inf"
-    dism.exe $imageArg /Add-Driver "/Driver:$inf" | Tee-Object -FilePath $logPath -Append
+    dism.exe $imageArg /Add-Driver "/Driver:$inf" | Tee-Object -FilePath $restoreLogPath -Append
     if ($LASTEXITCODE -eq 0) {
         $success++
     } else {
         $failed++
-        "FAILED: $inf (exit code $LASTEXITCODE)" | Tee-Object -FilePath $logPath -Append
+        "FAILED: $inf (exit code $LASTEXITCODE)" | Tee-Object -FilePath $restoreLogPath -Append
     }
 }
 
 Write-Section "Complete"
 Write-Host "Installed successfully: $success"
 Write-Host "Failed:                 $failed"
-Write-Host "Log written to:         $logPath"
+Write-Host "Restore log:            $restoreLogPath"
+Write-Host "Scan log:               $scanLogPath"
 Write-Host ""
 Write-Host "Reboot and test Windows. If hardware is still missing, add the vendor's full driver package to USB and run this again."

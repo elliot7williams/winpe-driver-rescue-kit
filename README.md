@@ -11,9 +11,11 @@ drivers back into the installed Windows system.
 ## What This Creates
 
 - A bootable WinPE ISO named `DriverRescue.iso`
+- An interactive WinPE menu named `DriverRescueMenu.cmd`
 - A rescue script available inside WinPE at `X:\Tools\DriverRestore.ps1`
 - A desktop command shortcut inside WinPE named `DriverRestore.cmd`
 - A BitLocker unlock helper inside WinPE named `Unlock-BitLockerVolume.cmd`
+- A rescue report script available inside WinPE at `X:\Tools\Generate-RescueReport.ps1`
 - Optional automatic driver folder bundled into the ISO
 - Optional automatic scan of external USB media for `.inf` drivers
 
@@ -94,7 +96,22 @@ USB-DRIVERS\
 
 1. Boot the broken PC from `DriverRescue.iso`.
 2. Attach the USB drive that contains drivers, if you are using one.
-3. In WinPE, run:
+3. In WinPE, the menu opens automatically. If needed, run:
+
+```cmd
+DriverRescueMenu.cmd
+```
+
+The menu includes:
+
+- Restore drivers
+- Dry-run driver scan
+- Unlock BitLocker volume
+- Generate rescue report
+- Open command prompt
+- Reboot
+
+You can also run the restore shortcut directly:
 
 ```cmd
 DriverRestore.cmd
@@ -118,7 +135,29 @@ The tool will:
 - Ask which Windows installation to repair
 - Scan bundled and external driver folders
 - Install matching `.inf` drivers with DISM
-- Write a log file to the repaired Windows drive
+- Write timestamped logs to `DriverRescueLogs` on the repaired Windows drive
+
+## Logs And Reports
+
+Restore runs and dry-run scans create a timestamped folder on the repaired
+Windows volume:
+
+```text
+C:\DriverRescueLogs\
+  20260622-143000\
+    DriverScan.txt
+    Restore.log
+```
+
+To generate a hardware and environment report from WinPE:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File X:\Tools\Generate-RescueReport.ps1
+```
+
+The report includes detected Windows installs, file-system drives, driver
+source folders, `.inf` counts, DiskPart volume output, WinPE driver output,
+network configuration, and BitLocker status.
 
 ## Exporting Drivers From A Working PC
 

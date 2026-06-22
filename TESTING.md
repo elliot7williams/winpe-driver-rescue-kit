@@ -30,7 +30,9 @@ dism /Unmount-Image /MountDir:out\mount /Discard
 3. Attach a second virtual disk or USB pass-through containing a `drivers`
    folder with at least one valid `.inf` package.
 4. Boot into WinPE.
-5. Run:
+5. Confirm `DriverRescueMenu.cmd` opens automatically.
+6. Choose the dry-run scan option.
+7. Choose the restore option, or run:
 
 ```cmd
 DriverRestore.cmd
@@ -41,6 +43,22 @@ Expected result:
 - The tool finds the installed Windows volume.
 - The tool finds `.inf` files from `X:\DriverRescue\Drivers` or external media.
 - The tool asks for confirmation before installing.
+
+## Menu Test
+
+Run this inside WinPE:
+
+```cmd
+DriverRescueMenu.cmd
+```
+
+Expected result:
+
+- Restore drivers launches `DriverRestore.cmd`.
+- Dry-run driver scan launches `DriverRestore.ps1 -DryRun`.
+- Unlock BitLocker volume launches `Unlock-BitLockerVolume.cmd`.
+- Generate rescue report launches `Generate-RescueReport.ps1`.
+- Open command prompt opens a nested `cmd.exe`.
 
 ## Dry-Run Test
 
@@ -55,6 +73,22 @@ Expected result:
 - The script lists driver sources.
 - The script lists every `.inf` file that would be installed.
 - No DISM `/Add-Driver` command is executed.
+- `DriverScan.txt` is written under `DriverRescueLogs`.
+
+## Rescue Report Test
+
+Run this inside WinPE:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File X:\Tools\Generate-RescueReport.ps1
+```
+
+Expected result:
+
+- `SystemReport.txt` is written under `DriverRescueLogs`.
+- The report includes detected Windows installs, file-system drives, driver
+  source folders, DiskPart volume output, network configuration, and BitLocker
+  status.
 
 ## External Driver Media Test
 
@@ -72,8 +106,8 @@ Expected result:
 
 - The restore script scans the external `drivers` folder.
 - It skips obvious installed Windows/system folders.
-- It writes `DriverRescue-Restore.log` to the repaired Windows volume after a
-  real restore.
+- It writes `Restore.log` and `DriverScan.txt` under `DriverRescueLogs` on the
+  repaired Windows volume after a real restore.
 
 ## BitLocker Test
 
@@ -111,4 +145,3 @@ Before using on a real broken PC, confirm:
 - The external driver USB is visible in WinPE.
 - BitLocker recovery keys are available if the system is encrypted.
 - Vendor driver packages include `.inf` files, not only `.exe` installers.
-

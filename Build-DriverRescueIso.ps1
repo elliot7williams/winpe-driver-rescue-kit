@@ -120,7 +120,9 @@ try {
     New-Item -ItemType Directory -Force -Path $toolsPath, $rescuePath | Out-Null
 
     Copy-Item -Force -Path "$PSScriptRoot\DriverRestore.ps1" -Destination (Join-Path $toolsPath "DriverRestore.ps1")
+    Copy-Item -Force -Path "$PSScriptRoot\Generate-RescueReport.ps1" -Destination (Join-Path $toolsPath "Generate-RescueReport.ps1")
     Copy-Item -Force -Path "$PSScriptRoot\DriverRestore.cmd" -Destination (Join-Path $mountRoot "DriverRestore.cmd")
+    Copy-Item -Force -Path "$PSScriptRoot\DriverRescueMenu.cmd" -Destination (Join-Path $mountRoot "DriverRescueMenu.cmd")
     Copy-Item -Force -Path "$PSScriptRoot\Unlock-BitLockerVolume.cmd" -Destination (Join-Path $mountRoot "Unlock-BitLockerVolume.cmd")
 
     if (Test-Path $DriverSource) {
@@ -137,9 +139,10 @@ try {
 wpeinit
 echo.
 echo WinPE Driver Rescue is ready.
-echo Run DriverRestore.cmd to restore drivers to an installed Windows volume.
+echo Run DriverRescueMenu.cmd for restore, scan, BitLocker, and report tools.
 echo.
 cd /d X:\
+call X:\DriverRescueMenu.cmd
 "@ | Set-Content -Encoding ASCII -Path $startnet
 
     Invoke-Native -FilePath "dism.exe" -Arguments @("/Unmount-Image", "/MountDir:$mountRoot", "/Commit")
