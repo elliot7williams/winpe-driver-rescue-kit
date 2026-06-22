@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+Added:
+
+- `ROADMAP.md` with near-term, medium-term, and longer-term project direction.
+
+Changed:
+
+- Driver restore and report logs now fall back to `X:\DriverRescueLogs` if the
+  target Windows drive cannot be used for logs.
+- Driver restore now lists failed `.inf` packages at the end and exits with a
+  failure code if any package fails.
+- BitLocker helper now reports when `manage-bde.exe` is unavailable.
+
 ## v0.1.1 - 2026-06-22
 
 Added:

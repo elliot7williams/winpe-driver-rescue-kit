@@ -178,15 +178,28 @@ function New-RescueLogDirectory {
         [string]$TargetDrive
     )
 
+    $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+
     if ($LogDirectory) {
-        New-Item -ItemType Directory -Force -Path $LogDirectory | Out-Null
-        return (Resolve-Path $LogDirectory).Path
+        try {
+            New-Item -ItemType Directory -Force -Path $LogDirectory | Out-Null
+            return (Resolve-Path $LogDirectory).Path
+        } catch {
+            Write-Warning "Could not use custom log directory $LogDirectory`: $($_.Exception.Message)"
+        }
     }
 
-    $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-    $path = Join-Path $TargetDrive "DriverRescueLogs\$timestamp"
-    New-Item -ItemType Directory -Force -Path $path | Out-Null
-    $path
+    foreach ($basePath in @($TargetDrive, "X:")) {
+        try {
+            $path = Join-Path $basePath "DriverRescueLogs\$timestamp"
+            New-Item -ItemType Directory -Force -Path $path | Out-Null
+            return $path
+        } catch {
+            Write-Warning "Could not create log directory on $basePath`: $($_.Exception.Message)"
+        }
+    }
+
+    throw "Could not create a rescue log directory on the target drive or X:."
 }
 
 Write-Section "WinPE Driver Rescue"
@@ -252,6 +265,7 @@ $imageRoot = "$targetDrive\"
 $imageArg = "/Image:$imageRoot"
 $success = 0
 $failed = 0
+$failedInfFiles = New-Object System.Collections.Generic.List[string]
 
 @(
     "WinPE Driver Rescue restore",
@@ -268,6 +282,7 @@ foreach ($inf in $infFiles) {
         $success++
     } else {
         $failed++
+        $failedInfFiles.Add($inf)
         "FAILED: $inf (exit code $LASTEXITCODE)" | Tee-Object -FilePath $restoreLogPath -Append
     }
 }
@@ -277,5 +292,13 @@ Write-Host "Installed successfully: $success"
 Write-Host "Failed:                 $failed"
 Write-Host "Restore log:            $restoreLogPath"
 Write-Host "Scan log:               $scanLogPath"
+
+if ($failedInfFiles.Count -gt 0) {
+    Write-Host ""
+    Write-Host "Failed driver packages:" -ForegroundColor Yellow
+    $failedInfFiles | ForEach-Object { Write-Host $_ }
+    exit 1
+}
+
 Write-Host ""
 Write-Host "Reboot and test Windows. If hardware is still missing, add the vendor's full driver package to USB and run this again."

@@ -230,5 +230,6 @@ manage-bde -protectors -enable C:
 - `RELEASE.md` covers release packaging and redistribution warnings.
 - `CONTRIBUTING.md` covers contribution expectations and script style.
 - `SECURITY.md` explains the project security boundaries.
+- `ROADMAP.md` lists possible future improvements and non-goals.
 - `CHANGELOG.md` tracks notable project changes.
 - This project is licensed under the MIT License. See `LICENSE`.

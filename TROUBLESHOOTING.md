@@ -135,6 +135,13 @@ Look under the repaired Windows volume:
 C:\DriverRescueLogs\
 ```
 
+If the repaired Windows volume is not writable, the scripts try to write logs
+under the WinPE RAM drive instead:
+
+```text
+X:\DriverRescueLogs\
+```
+
 Useful files:
 
 - `DriverScan.txt`

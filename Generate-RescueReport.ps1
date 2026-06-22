@@ -55,9 +55,15 @@ function Get-WindowsInstallations {
 function Get-DefaultReportDirectory {
     param([object[]]$Installations)
 
+    $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+
     if ($OutputDirectory) {
-        New-Item -ItemType Directory -Force -Path $OutputDirectory | Out-Null
-        return (Resolve-Path $OutputDirectory).Path
+        try {
+            New-Item -ItemType Directory -Force -Path $OutputDirectory | Out-Null
+            return (Resolve-Path $OutputDirectory).Path
+        } catch {
+            Write-Warning "Could not use custom report directory $OutputDirectory`: $($_.Exception.Message)"
+        }
     }
 
     $targetDrive = $null
@@ -71,10 +77,17 @@ function Get-DefaultReportDirectory {
         $targetDrive = "X:"
     }
 
-    $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-    $path = Join-Path $targetDrive "DriverRescueLogs\$timestamp"
-    New-Item -ItemType Directory -Force -Path $path | Out-Null
-    $path
+    foreach ($basePath in (@($targetDrive, "X:") | Sort-Object -Unique)) {
+        try {
+            $path = Join-Path $basePath "DriverRescueLogs\$timestamp"
+            New-Item -ItemType Directory -Force -Path $path | Out-Null
+            return $path
+        } catch {
+            Write-Warning "Could not create report directory on $basePath`: $($_.Exception.Message)"
+        }
+    }
+
+    throw "Could not create a rescue report directory on the target drive or X:."
 }
 
 function Get-DriverRoots {

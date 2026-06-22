@@ -1,6 +1,13 @@
 @echo off
 setlocal
 
+where manage-bde.exe >nul 2>nul
+if errorlevel 1 (
+    echo manage-bde.exe was not found in this environment.
+    echo BitLocker unlock is unavailable from this boot image.
+    exit /b 1
+)
+
 set TARGET=%~1
 if "%TARGET%"=="" set /p TARGET=Enter BitLocker volume letter, for example C:
 
