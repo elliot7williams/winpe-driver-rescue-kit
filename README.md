@@ -204,3 +204,11 @@ manage-bde -protectors -enable C:
 - For storage controller problems, include storage/NVMe/RAID drivers in the ISO
   itself so WinPE can see the internal disk.
 - Test the ISO in a VM before relying on it during a repair. See `TESTING.md`.
+
+## Project Docs
+
+- `TESTING.md` covers build, VM, dry-run, BitLocker, report, and hardware checks.
+- `RELEASE.md` covers release packaging and redistribution warnings.
+- `CONTRIBUTING.md` covers contribution expectations and script style.
+- `SECURITY.md` explains the project security boundaries.
+- This project is licensed under the MIT License. See `LICENSE`.
