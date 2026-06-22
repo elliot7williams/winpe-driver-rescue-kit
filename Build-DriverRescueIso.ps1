@@ -1,3 +1,44 @@
+<#
+.SYNOPSIS
+Builds a bootable WinPE driver rescue ISO.
+
+.DESCRIPTION
+Creates a Windows PE workspace, adds the WinPE optional components required for
+PowerShell-based rescue tools, copies the Driver Rescue scripts into the image,
+optionally bundles local driver packages, and creates a bootable ISO.
+
+This script must run from an elevated PowerShell session on Windows with the
+Windows ADK and Windows PE add-on installed.
+
+.PARAMETER Architecture
+Target WinPE architecture. The default is amd64.
+
+.PARAMETER Locale
+WinPE optional component language pack locale. The default is en-us.
+
+.PARAMETER OutputDirectory
+Directory where the WinPE workspace, mount folder, and ISO are created.
+
+.PARAMETER IsoName
+Name of the generated ISO file. The default is DriverRescue.iso.
+
+.PARAMETER DriverSource
+Local folder containing optional driver packages to bundle into the ISO.
+
+.PARAMETER Force
+Removes existing build output before creating a new ISO.
+
+.EXAMPLE
+.\Build-DriverRescueIso.ps1
+
+Builds .\out\DriverRescue.iso.
+
+.EXAMPLE
+.\Build-DriverRescueIso.ps1 -Force
+
+Rebuilds the ISO after removing prior output.
+#>
+
 #Requires -RunAsAdministrator
 [CmdletBinding()]
 param(

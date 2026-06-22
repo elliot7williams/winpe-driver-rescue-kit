@@ -1,3 +1,44 @@
+<#
+.SYNOPSIS
+Restores driver packages into an offline Windows installation from WinPE.
+
+.DESCRIPTION
+Finds installed Windows volumes, scans bundled and external driver folders for
+.inf files, writes timestamped scan logs, and uses DISM to add drivers into the
+selected offline Windows installation.
+
+Run this script from the WinPE rescue environment created by
+Build-DriverRescueIso.ps1.
+
+.PARAMETER WindowsPath
+Path to the installed Windows folder, such as C:\Windows. If omitted, the script
+searches attached file-system drives.
+
+.PARAMETER DriverPath
+One or more explicit driver source folders to scan in addition to bundled and
+auto-detected driver folders.
+
+.PARAMETER LogDirectory
+Custom folder for DriverScan.txt and Restore.log. If omitted, a timestamped
+folder is created under DriverRescueLogs on the target Windows drive.
+
+.PARAMETER DryRun
+Scans and logs driver packages without installing them.
+
+.PARAMETER NonInteractive
+Uses the first detected Windows installation and skips confirmation prompts.
+
+.EXAMPLE
+powershell -ExecutionPolicy Bypass -File X:\Tools\DriverRestore.ps1
+
+Runs the interactive restore flow from WinPE.
+
+.EXAMPLE
+powershell -ExecutionPolicy Bypass -File X:\Tools\DriverRestore.ps1 -DryRun
+
+Lists driver packages that would be installed without changing Windows.
+#>
+
 [CmdletBinding()]
 param(
     [string]$WindowsPath,

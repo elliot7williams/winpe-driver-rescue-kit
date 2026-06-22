@@ -1,5 +1,8 @@
 # WinPE Driver Rescue Kit
 
+[![PowerShell lint](https://github.com/elliot7williams/winpe-driver-rescue-kit/actions/workflows/powershell-lint.yml/badge.svg)](https://github.com/elliot7williams/winpe-driver-rescue-kit/actions/workflows/powershell-lint.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 This project builds a bootable Windows PE ISO that can restore missing or broken
 Windows drivers from external media.
 
@@ -41,6 +44,12 @@ https://learn.microsoft.com/windows-hardware/get-started/adk-install
 
 ```powershell
 .\Build-DriverRescueIso.ps1
+```
+
+For full script help:
+
+```powershell
+Get-Help .\Build-DriverRescueIso.ps1 -Full
 ```
 
 The ISO will be created at:
@@ -214,4 +223,5 @@ manage-bde -protectors -enable C:
 - `RELEASE.md` covers release packaging and redistribution warnings.
 - `CONTRIBUTING.md` covers contribution expectations and script style.
 - `SECURITY.md` explains the project security boundaries.
+- `CHANGELOG.md` tracks notable project changes.
 - This project is licensed under the MIT License. See `LICENSE`.

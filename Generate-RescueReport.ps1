@@ -1,3 +1,26 @@
+<#
+.SYNOPSIS
+Generates a WinPE driver rescue environment report.
+
+.DESCRIPTION
+Creates SystemReport.txt with detected Windows installations, file-system
+drives, driver source folders, .inf counts, DiskPart volume output, WinPE driver
+output, network configuration, and BitLocker status.
+
+.PARAMETER WindowsPath
+Optional path to the target Windows folder. Used to choose the default report
+folder when supplied.
+
+.PARAMETER OutputDirectory
+Custom folder where SystemReport.txt should be written. If omitted, a timestamped
+folder is created under DriverRescueLogs on the detected target Windows drive.
+
+.EXAMPLE
+powershell -ExecutionPolicy Bypass -File X:\Tools\Generate-RescueReport.ps1
+
+Generates SystemReport.txt from the WinPE rescue environment.
+#>
+
 [CmdletBinding()]
 param(
     [string]$WindowsPath,
