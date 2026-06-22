@@ -208,6 +208,9 @@ manage-bde -protectors -enable C:
 ## Project Docs
 
 - `TESTING.md` covers build, VM, dry-run, BitLocker, report, and hardware checks.
+- `LIMITATIONS.md` explains what the toolkit can and cannot repair.
+- `DRIVER_PACKAGES.md` explains how to prepare usable `.inf` driver packages.
+- `TROUBLESHOOTING.md` covers common ADK, WinPE, DISM, disk, and driver issues.
 - `RELEASE.md` covers release packaging and redistribution warnings.
 - `CONTRIBUTING.md` covers contribution expectations and script style.
 - `SECURITY.md` explains the project security boundaries.
