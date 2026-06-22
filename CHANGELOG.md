@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here.
 
+## v0.1.1 - 2026-06-22
+
+Added:
+
+- Build transcript logging to `out\Build.log` by default.
+- `EXAMPLES.md` with sample menu output, dry-run output, restore log snippets,
+  and rescue report snippets.
+
 ## v0.1.0 - 2026-06-22
 
 Initial public release.

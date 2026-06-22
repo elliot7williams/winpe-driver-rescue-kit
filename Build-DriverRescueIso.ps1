@@ -25,6 +25,10 @@ Name of the generated ISO file. The default is DriverRescue.iso.
 .PARAMETER DriverSource
 Local folder containing optional driver packages to bundle into the ISO.
 
+.PARAMETER BuildLogPath
+Path to the build transcript log. The default is Build.log in the output
+directory.
+
 .PARAMETER Force
 Removes existing build output before creating a new ISO.
 
@@ -47,6 +51,7 @@ param(
     [string]$OutputDirectory = "$PSScriptRoot\out",
     [string]$IsoName = "DriverRescue.iso",
     [string]$DriverSource = "$PSScriptRoot\drivers",
+    [string]$BuildLogPath,
     [switch]$Force
 )
 
@@ -114,6 +119,22 @@ function Add-WinPeOptionalComponent {
     }
 }
 
+New-Item -ItemType Directory -Force -Path $OutputDirectory | Out-Null
+
+if (-not $BuildLogPath) {
+    $BuildLogPath = Join-Path $OutputDirectory "Build.log"
+}
+
+$transcriptStarted = $false
+try {
+    Start-Transcript -Path $BuildLogPath -Force | Out-Null
+    $transcriptStarted = $true
+    Write-Host "Build log: $BuildLogPath"
+} catch {
+    Write-Warning "Could not start build transcript at $BuildLogPath`: $($_.Exception.Message)"
+}
+
+try {
 $adk = Find-AdkDeploymentTools
 $workRoot = Join-Path $OutputDirectory "work"
 $mediaRoot = Join-Path $workRoot "media"
@@ -135,8 +156,6 @@ if ((Test-Path $workRoot) -or (Test-Path $mountRoot) -or (Test-Path $isoPath)) {
 
     Remove-Item -Recurse -Force $workRoot, $mountRoot, $isoPath -ErrorAction SilentlyContinue
 }
-
-New-Item -ItemType Directory -Force -Path $OutputDirectory | Out-Null
 
 Invoke-Native -FilePath $adk.CopyPe -Arguments @($Architecture, $workRoot)
 
@@ -197,4 +216,10 @@ Invoke-Native -FilePath $adk.MakeWinPeMedia -Arguments @("/ISO", $workRoot, $iso
 
 Write-Host ""
 Write-Host "Created ISO: $isoPath"
+Write-Host "Build log:   $BuildLogPath"
 Write-Host "Write it to USB with Rufus, Ventoy, or another trusted ISO-to-USB tool."
+} finally {
+    if ($transcriptStarted) {
+        Stop-Transcript | Out-Null
+    }
+}

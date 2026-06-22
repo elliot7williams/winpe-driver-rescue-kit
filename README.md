@@ -58,6 +58,12 @@ The ISO will be created at:
 .\out\DriverRescue.iso
 ```
 
+The build transcript is written to:
+
+```text
+.\out\Build.log
+```
+
 ## Bundling Drivers Into The ISO
 
 Place driver packages under `drivers\`. Driver packages must include `.inf`
@@ -217,6 +223,7 @@ manage-bde -protectors -enable C:
 ## Project Docs
 
 - `TESTING.md` covers build, VM, dry-run, BitLocker, report, and hardware checks.
+- `EXAMPLES.md` shows sample menu, dry-run, restore log, and report output.
 - `LIMITATIONS.md` explains what the toolkit can and cannot repair.
 - `DRIVER_PACKAGES.md` explains how to prepare usable `.inf` driver packages.
 - `TROUBLESHOOTING.md` covers common ADK, WinPE, DISM, disk, and driver issues.
